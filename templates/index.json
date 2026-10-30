@@ -1,0 +1,80 @@
+{
+  "sections": {
+    "collection_list": {
+      "type": "collection-list",
+      "name": "Collection List",
+      "settings": {}
+    },
+    "multicolumn": {
+      "type": "multicolumn",
+      "name": "Multicolumn",
+      "blocks": {
+        "truck": { "type": "icon-item", "settings": { "icon": "truck" } },
+        "customer": { "type": "icon-item", "settings": { "icon": "user-favorite" } },
+        "sustainability": { "type": "icon-item", "settings": { "icon": "sustainability" } },
+        "tags": { "type": "icon-item", "settings": { "icon": "tags" } }
+      },
+      "block_order": ["truck", "customer", "sustainability", "tags"],
+      "settings": {}
+    },
+    "body_hero": {
+      "type": "body-hero",
+      "name": "Body Hero",
+      "blocks": {
+        "review_1": { "type": "review-small", "settings": {} },
+        "review_2": { "type": "review-small", "settings": { "default_avatar": "profile-review-2" } }
+      },
+      "block_order": ["review_1", "review_2"],
+      "settings": {}
+    },
+    "best_selling": {
+      "type": "featured-collection",
+      "name": "Best Selling Products",
+      "blocks": {
+        "product_1": { "type": "product-card", "settings": {} },
+        "product_2": { "type": "product-card", "settings": {} },
+        "product_3": { "type": "product-card", "settings": {} },
+        "product_4": { "type": "product-card", "settings": {} }
+      },
+      "block_order": ["product_1", "product_2", "product_3", "product_4"],
+      "settings": { "heading": "Best Selling Products" }
+    },
+    "reviews": {
+      "type": "reviews",
+      "name": "Reviews",
+      "settings": {}
+    },
+    "may_also_like": {
+      "type": "featured-collection",
+      "name": "Product Recommendations",
+      "blocks": {
+        "product_1": { "type": "product-card", "settings": {} },
+        "product_2": { "type": "product-card", "settings": {} },
+        "product_3": { "type": "product-card", "settings": {} },
+        "product_4": { "type": "product-card", "settings": {} }
+      },
+      "block_order": ["product_1", "product_2", "product_3", "product_4"],
+      "settings": { "heading": "You May Also Like" }
+    },
+    "see_more": {
+      "type": "see-more",
+      "name": "See More",
+      "settings": {}
+    },
+    "rich_text": {
+      "type": "rich-text",
+      "name": "Rich Text",
+      "settings": {}
+    }
+  },
+  "order": [
+    "collection_list",
+    "multicolumn",
+    "body_hero",
+    "best_selling",
+    "reviews",
+    "may_also_like",
+    "see_more",
+    "rich_text"
+  ]
+}

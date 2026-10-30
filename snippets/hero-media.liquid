@@ -1,0 +1,40 @@
+<picture class="hero-media{% if cover %} hero-media--cover{% endif %}">
+  {%- if image_mobile != blank -%}
+    <source
+      media="(max-width: 749px)"
+      srcset="{{ image_mobile | image_url: width: 400 }} 400w, {{ image_mobile | image_url: width: 750 }} 750w"
+      sizes="100vw"
+    >
+  {%- elsif image == blank and fallback_mobile != blank -%}
+    <source media="(max-width: 749px)" srcset="{{ fallback_mobile | asset_url }}">
+  {%- endif -%}
+
+  {%- if image != blank -%}
+    {{ image | image_url: width: 1920 | image_tag: sizes: '100vw', alt: image.alt }}
+  {%- else -%}
+    <img src="{{ fallback | asset_url }}" alt="" width="{{ fallback_width }}" height="{{ fallback_height }}">
+  {%- endif -%}
+</picture>
+
+{% stylesheet %}
+  .hero-media {
+    display: block;
+  }
+
+  .hero-media img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .hero-media--cover {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-media--cover img {
+    height: 100%;
+    object-fit: cover;
+  }
+{% endstylesheet %}

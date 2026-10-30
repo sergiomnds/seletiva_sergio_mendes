@@ -1,0 +1,365 @@
+<div class="reviews-list" id="reviews-{{ section.id }}" data-section-id="{{ section.id }}">
+  <h2 class="reviews-list__heading" style="color: {{ section.settings.text_color }}">{{ section.settings.heading | escape }}</h2>
+
+  <div class="reviews-list__subheading-row" style="color: {{ section.settings.text_color }}">
+    {%- if section.settings.subheading != blank -%}
+      <p class="reviews-list__subheading">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.show_rating -%}
+      {%- render 'star-rating',
+        rating: section.settings.rating,
+        fill_color: section.settings.star_fill_color,
+        outline_color: section.settings.star_outline_color
+      -%}
+    {%- endif -%}
+  </div>
+
+  {%- liquid
+    assign min_rating = section.settings.min_rating
+    assign shown = 0
+    capture grid_style
+      if section.settings.card_background != blank
+        echo '--review-card-bg: ' | append: section.settings.card_background | append: ';'
+      endif
+      if section.settings.card_text_color != blank
+        echo '--review-card-color: ' | append: section.settings.card_text_color | append: ';'
+      endif
+    endcapture
+  -%}
+
+  {%- paginate shop.metaobjects.product_reviews.values by 250 -%}
+    {%- capture cards -%}
+      {%- for review in shop.metaobjects.product_reviews.values -%}
+        {%- assign review_rating = review.rating_0_5.value | default: 0 -%}
+        {%- if review_rating >= min_rating -%}
+          {%- assign shown = shown | plus: 1 -%}
+          {%- assign page = shown | minus: 1 | divided_by: 4 | plus: 1 -%}
+          {%- render 'review-card',
+            review: review,
+            page: page,
+            fill_color: section.settings.star_fill_color,
+            outline_color: section.settings.star_outline_color,
+            show_country: section.settings.card_show_country,
+            show_rating: section.settings.card_show_rating,
+            show_product: section.settings.card_show_product
+          -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+  {%- endpaginate -%}
+
+  {%- if shown > 0 -%}
+    <ul class="reviews-list__grid" role="list" style="{{ grid_style }}">
+      {{- cards -}}
+    </ul>
+
+    {%- assign total_pages = shown | plus: 3 | divided_by: 4 -%}
+    {%- if total_pages > 1 -%}
+      <nav class="reviews-pagination" data-total-pages="{{ total_pages }}" aria-label="Reviews pagination">
+        <template>{%- render 'simple-arrow-icon' -%}</template>
+      </nav>
+      <p class="visually-hidden" role="status" data-reviews-status></p>
+    {%- endif -%}
+  {%- elsif request.design_mode -%}
+    <p class="reviews-list__empty">No reviews match the minimum rating.</p>
+  {%- endif -%}
+</div>
+
+{% javascript %}
+  (function () {
+    function pageItems(current, total) {
+      var items = [];
+      for (var i = 1; i <= total; i++) {
+        if (i === 1 || i === total || Math.abs(i - current) <= 1) {
+          items.push(i);
+        } else if (items[items.length - 1] !== '…') {
+          items.push('…');
+        }
+      }
+      return items;
+    }
+
+    function arrow(nav, page, isPrev) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'reviews-pagination__arrow' + (isPrev ? ' reviews-pagination__arrow--prev' : '');
+      button.dataset.page = page;
+      button.setAttribute('aria-label', isPrev ? 'Previous page' : 'Next page');
+      button.appendChild(nav.querySelector('template').content.cloneNode(true));
+      return button;
+    }
+
+    function renderNav(nav, current) {
+      var total = parseInt(nav.dataset.totalPages, 10);
+      var template = nav.querySelector('template');
+      nav.dataset.currentPage = current;
+      nav.replaceChildren(template);
+
+      if (current > 1) nav.appendChild(arrow(nav, current - 1, true));
+
+      pageItems(current, total).forEach(function (item) {
+        var el;
+        if (item === '…') {
+          el = document.createElement('span');
+          el.className = 'reviews-pagination__ellipsis';
+          el.textContent = '…';
+        } else if (item === current) {
+          el = document.createElement('span');
+          el.setAttribute('aria-current', 'page');
+          el.tabIndex = -1;
+          el.textContent = item;
+        } else {
+          el = document.createElement('button');
+          el.type = 'button';
+          el.dataset.page = item;
+          el.setAttribute('aria-label', 'Page ' + item);
+          el.textContent = item;
+        }
+        nav.appendChild(el);
+      });
+
+      if (current < total) nav.appendChild(arrow(nav, current + 1, false));
+    }
+
+    function init(scope) {
+      scope.querySelectorAll('.reviews-pagination[data-total-pages]').forEach(function (nav) {
+        renderNav(nav, 1);
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var button = e.target.closest('.reviews-pagination button[data-page]');
+      if (!button) return;
+      var root = button.closest('[data-section-id]');
+      var nav = button.closest('.reviews-pagination');
+      var page = button.dataset.page;
+      var isArrow = button.classList.contains('reviews-pagination__arrow');
+      var isPrev = button.classList.contains('reviews-pagination__arrow--prev');
+
+      root.querySelectorAll('.reviews-list__grid > [data-page]').forEach(function (card) {
+        card.hidden = card.dataset.page !== page;
+      });
+      renderNav(nav, parseInt(page, 10));
+
+      var arrowSelector = isPrev
+        ? '.reviews-pagination__arrow--prev'
+        : '.reviews-pagination__arrow:not(.reviews-pagination__arrow--prev)';
+      var sameArrow = isArrow ? nav.querySelector(arrowSelector) : null;
+      (sameArrow || nav.querySelector('[aria-current="page"]')).focus({ preventScroll: true });
+
+      root.querySelector('[data-reviews-status]').textContent = 'Page ' + page + ' of ' + nav.dataset.totalPages;
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        init(document);
+      });
+    } else {
+      init(document);
+    }
+
+    document.addEventListener('shopify:section:load', function (e) {
+      init(e.target);
+    });
+  })();
+{% endjavascript %}
+
+{% stylesheet %}
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    --reviews-text-size: clamp(14px, 1.25vw, 18px);
+  }
+
+  .reviews-list__subheading-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    --star-size: 14px;
+  }
+
+  .reviews-list__heading {
+    margin-bottom: 0;
+  }
+
+  .reviews-list__subheading {
+    font-size: var(--reviews-text-size);
+  }
+
+  .reviews-list__empty {
+    color: #9a9a9a;
+    font-size: var(--reviews-text-size);
+  }
+
+  .reviews-list__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 25px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 250px;
+    list-style: none;
+    text-align: left;
+  }
+
+  .reviews-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: clamp(24px, 2.5vw, 40px);
+    color: #a8a8a8;
+    font-size: var(--reviews-text-size);
+  }
+
+  .reviews-pagination button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .reviews-pagination button:hover,
+  .reviews-pagination [aria-current='page'] {
+    color: #252525;
+  }
+
+  .reviews-pagination [aria-current='page'] {
+    font-weight: bold;
+  }
+
+  .reviews-pagination .reviews-pagination__arrow {
+    display: inline-flex;
+    padding: 0 8px;
+  }
+
+  .reviews-pagination__arrow--prev svg {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 989px) {
+    .reviews-list__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      padding: 0 20px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Text",
+      "default": "Real Reviews, Real Experiences"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "With 1600+ 5-star reviews"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#252525"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating (stars)",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rating",
+      "label": "Filled stars",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "star_fill_color",
+      "label": "Star fill color",
+      "default": "#FFB800"
+    },
+    {
+      "type": "color",
+      "id": "star_outline_color",
+      "label": "Star outline color",
+      "default": "#FFB800"
+    },
+    {
+      "type": "header",
+      "content": "Card"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Background color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Text color",
+      "info": "Applied to all card texts. Keep enough contrast with the background.",
+      "default": "#252525"
+    },
+    {
+      "type": "checkbox",
+      "id": "card_show_country",
+      "label": "Show country",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "card_show_rating",
+      "label": "Show rating (stars)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "card_show_product",
+      "label": "Show product",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Filter"
+    },
+    {
+      "type": "range",
+      "id": "min_rating",
+      "label": "Minimum rating",
+      "info": "0 shows all reviews. Up to 250 reviews are loaded.",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,300 @@
+{%- assign logo = shop.brand.logo -%}
+
+<header>
+  <div class="header-homepage">
+    <div class="header-top">
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-controls="header-drawer"
+        aria-expanded="false"
+        data-drawer-open
+      >
+        {% render 'menu-icon' %}
+        <p>MENU</p>
+      </button>
+
+      <a href="#" class="header-homepage__logo">
+        {%- if logo -%}
+          {{
+            logo
+            | image_url: width: 360
+            | image_tag: class: 'site-header__logo-img', alt: shop.name, height: 40, loading: 'eager'
+          }}
+        {%- else -%}
+          {{ shop.name }}
+        {%- endif -%}
+      </a>
+
+      <div class="header-homepage__search">
+        {% content_for 'block', type: 'search-form', id: 'header-search' %}
+      </div>
+
+      <a class="cart-button" href="{{ routes.cart_url }}">
+        <span class="cart-button__icon">
+          {% render 'cart-icon' %}
+          <span class="cart-button__badge">5</span>
+        </span>
+        <p>CART</p>
+      </a>
+    </div>
+
+    <div class="header-drawer" id="header-drawer">
+      <div class="header-drawer__overlay" data-drawer-close></div>
+      <div class="header-drawer__panel">
+        <button type="button" class="header-drawer__close" data-drawer-close>&times;</button>
+        <nav class="site-header__nav">
+          <ul class="site-header__menu">
+            {%- for link in linklists['main-menu'].links -%}
+              <li>
+                <a
+                  href="{{ link.url }}"
+                  class="site-header__link{% if link.active %} site-header__link--active{% endif %}"
+                >
+                  {{- link.title -}}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+{% javascript %}
+  (function () {
+    function setOpen(open) {
+      var drawer = document.getElementById('header-drawer');
+      var toggle = document.querySelector('[data-drawer-open]');
+      if (!drawer) return;
+      drawer.classList.toggle('is-open', open);
+      if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-drawer-open]')) setOpen(true);
+      else if (e.target.closest('[data-drawer-close]')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setOpen(false);
+    });
+  })();
+{% endjavascript %}
+
+{% stylesheet %}
+  .header-homepage {
+    background-color: #ffffff;
+  }
+
+  .header-top {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 528px) 1fr;
+    column-gap: 60px;
+    align-items: center;
+    padding: 30px 135px;
+  }
+
+  .site-header__nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 45px;
+  }
+
+  .site-header__menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 53px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-header__link {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    color: #252525;
+  }
+
+  .cart-button {
+    justify-self: end;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .cart-button__icon {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .cart-button__badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    box-sizing: border-box;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #00c371;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  .cart-button p {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .menu-toggle,
+  .header-drawer__close,
+  .header-drawer__overlay {
+    display: none;
+  }
+
+  .menu-toggle {
+    grid-area: menu;
+    justify-self: start;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .menu-toggle p {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  @media (max-width: 989px) {
+    .cart-button p,
+    .menu-toggle p {
+      font-size: 14px;
+    }
+
+    .header-top {
+      grid-template-columns: 1fr auto 1fr;
+      grid-template-areas:
+        'menu logo cart'
+        'search search search';
+      row-gap: 16px;
+      column-gap: 16px;
+      padding: 16px 24px;
+    }
+
+    .menu-toggle {
+      display: flex;
+    }
+
+    .header-homepage__logo {
+      grid-area: logo;
+      justify-self: center;
+    }
+
+    .cart-button {
+      grid-area: cart;
+    }
+
+    .header-homepage__search {
+      grid-area: search;
+      justify-self: center;
+      width: 100%;
+      max-width: 528px;
+      box-sizing: border-box;
+    }
+
+    .header-drawer {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      visibility: hidden;
+      pointer-events: none;
+      transition: visibility 0s 0.3s;
+    }
+
+    .header-drawer.is-open {
+      visibility: visible;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
+
+    .header-drawer__overlay {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .header-drawer.is-open .header-drawer__overlay {
+      opacity: 1;
+    }
+
+    .header-drawer__panel {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: min(320px, 85vw);
+      background: #ffffff;
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+      overflow-y: auto;
+    }
+
+    .header-drawer.is-open .header-drawer__panel {
+      transform: translateX(0);
+    }
+
+    .header-drawer__close {
+      display: block;
+      margin: 12px 16px 0 auto;
+      padding: 0;
+      border: 0;
+      background: none;
+      font-size: 32px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .site-header__nav {
+      display: block;
+      height: auto;
+    }
+
+    .site-header__menu {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 24px;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .cart-button p,
+    .menu-toggle p {
+      font-size: 12px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": []
+}
+{% endschema %}

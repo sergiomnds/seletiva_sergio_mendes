@@ -1,0 +1,122 @@
+{% assign peek = section.settings.peek_height %}
+
+<div class="see-more" id="see-more-{{ section.id }}" data-see-more>
+  <button type="button" class="see-more__button" data-see-more-toggle>
+    {{ section.settings.button_label | escape }}
+  </button>
+</div>
+
+{% style %}
+  #see-more-{{ section.id }} {
+    height: {{ peek }}px;
+    margin-bottom: -{{ peek }}px;
+    color: {{ section.settings.button_color }};
+    background: linear-gradient(
+      to bottom,
+      {{ section.settings.overlay_color | color_modify: 'alpha', 0 }},
+      {{ section.settings.overlay_color }}
+    );
+  }
+
+  .main-content > .shopify-section:has(#see-more-{{ section.id }}:not(.is-expanded)) + .shopify-section {
+    max-height: {{ peek }}px;
+    overflow: hidden;
+  }
+
+  .main-content > .shopify-section:has(#see-more-{{ section.id }}:not(.is-expanded)) + .shopify-section ~ .shopify-section {
+    display: none;
+  }
+{% endstyle %}
+
+{% javascript %}
+  (function () {
+    document.addEventListener('click', function (e) {
+      var toggle = e.target.closest('[data-see-more-toggle]');
+      if (!toggle) return;
+      toggle.closest('[data-see-more]').classList.add('is-expanded');
+      toggle.closest('.main-content').focus({ preventScroll: true });
+    });
+
+    document.addEventListener('shopify:section:select', function (e) {
+      var seeMore = document.querySelector('[data-see-more]');
+      if (!seeMore) return;
+      var section = seeMore.closest('.shopify-section');
+      var isAfter = section.compareDocumentPosition(e.target) & Node.DOCUMENT_POSITION_FOLLOWING;
+      seeMore.classList.toggle('is-expanded', Boolean(isAfter));
+    });
+  })();
+{% endjavascript %}
+
+{% stylesheet %}
+  .see-more {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 24px;
+    box-sizing: border-box;
+  }
+
+  .see-more.is-expanded,
+  .shopify-section:last-child > .see-more {
+    display: none;
+  }
+
+  .see-more__button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "See More",
+  "limit": 1,
+  "enabled_on": {
+    "templates": ["index"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "See more"
+    },
+    {
+      "type": "range",
+      "id": "peek_height",
+      "label": "Visible content height",
+      "info": "How much of the next section stays visible behind the fade.",
+      "min": 60,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Fade color",
+      "default": "#F5F5F5"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#252525"
+    }
+  ],
+  "presets": [
+    {
+      "name": "See More"
+    }
+  ]
+}
+{% endschema %}

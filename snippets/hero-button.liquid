@@ -1,0 +1,24 @@
+{%- if label != blank -%}
+  <a
+    class="hero-button"
+    {% if link != blank %}
+      href="{{ link }}"
+    {% endif %}
+    style="background-color: {{ bg }}; color: {{ text_color }};"
+  >
+    {{- label | escape -}}
+  </a>
+{%- endif -%}
+
+{% stylesheet %}
+  .hero-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(140px, 11.74vw, 169px);
+    height: clamp(40px, 3.75vw, 54px);
+    border-radius: 100px;
+    font-size: clamp(18px, 1.39vw, 20px);
+    text-decoration: none;
+  }
+{% endstylesheet %}

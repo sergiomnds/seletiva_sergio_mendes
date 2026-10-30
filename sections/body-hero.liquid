@@ -1,0 +1,182 @@
+<div class="body-hero" style="--hero-text-color: {{ section.settings.text_color }};">
+  {%- render 'hero-media',
+    image: section.settings.image,
+    image_mobile: section.settings.image_mobile,
+    fallback: 'banner-reviews.png',
+    fallback_width: 2000,
+    fallback_height: 1143,
+    cover: true
+  -%}
+
+  <div class="body-hero__content content-align--{{ section.settings.content_alignment }}">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="body-hero__heading hero-title">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <div class="hero-subtitle">{{ section.settings.subheading | escape }}</div>
+    {%- endif -%}
+
+    <div class="body-hero__button">
+      {%- render 'hero-button',
+        label: section.settings.primary_button_label,
+        link: section.settings.primary_button_link,
+        bg: section.settings.primary_button_bg,
+        text_color: section.settings.primary_button_text
+      -%}
+    </div>
+
+    <div class="body-hero__reviews">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .body-hero {
+    position: relative;
+    overflow: hidden;
+    color: var(--hero-text-color);
+  }
+
+  .body-hero__content {
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: var(--content-justify);
+    min-height: clamp(420px, 45vw, 650px);
+    padding: clamp(40px, 4.44vw, 64px) clamp(20px, 9vw, 130px);
+    text-align: var(--content-align);
+  }
+
+  .body-hero__heading {
+    margin: 0 0 clamp(4px, 0.55vw, 8px);
+  }
+
+  .body-hero__button {
+    display: flex;
+    justify-content: var(--content-justify);
+    margin-top: clamp(16px, 2.5vw, 36px);
+  }
+
+  .body-hero__reviews {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: var(--content-justify);
+    gap: 32px clamp(24px, 5.5vw, 80px);
+    width: 100%;
+    max-width: 1000px;
+    margin-top: clamp(24px, 2.5vw, 36px);
+    --star-size: 14px;
+  }
+
+  @media (max-width: 749px) {
+    .body-hero__reviews {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .body-hero__reviews > :nth-child(n + 2) {
+      display: none;
+    }
+
+    .body-hero__button {
+      margin-bottom: 50px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Body Hero",
+  "tag": "section",
+  "class": "section-body-hero",
+  "max_blocks": 2,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background Image (desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Background Image (mobile)"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment (desktop)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Title",
+      "default": "Cherished Favorites"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Explore the Harmony of Exceptional Quality and Customer Praise"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_label",
+      "label": "Button Label",
+      "default": "View More"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "label": "Link"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Background Color",
+      "default": "#00AC4F"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    }
+  ],
+  "blocks": [{ "type": "review-small" }],
+  "presets": [
+    {
+      "name": "Body Hero",
+      "category": "General",
+      "blocks": [{ "type": "review-small" }, { "type": "review-small", "settings": { "default_avatar": "profile-review-2" } }]
+    }
+  ]
+}
+{% endschema %}

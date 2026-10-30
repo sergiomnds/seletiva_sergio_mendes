@@ -1,0 +1,73 @@
+<div class="icon-item" {{ block.shopify_attributes }}>
+
+  <span class="icon-item__icon">
+    {%- case block.settings.icon -%}
+      {%- when 'truck' -%}
+        {% render 'truck-icon' %}
+      {%- when 'user-favorite' -%}
+        {% render 'user-favorite-icon' %}
+      {%- when 'sustainability' -%}
+        {% render 'sustainability-icon' %}
+      {%- when 'tags' -%}
+        {% render 'tags-icon' %}
+      {%- when 'custom' -%}
+        {%- if block.settings.custom_icon != blank -%}
+          {{ block.settings.custom_icon | image_url: width: 120 | image_tag: alt: block.settings.text }}
+        {%- endif -%}
+    {%- endcase -%}
+  </span>
+
+  {%- if block.settings.text != blank -%}
+    <p class="icon-item__text">{{ block.settings.text | escape }}</p>
+  {%- endif -%}
+
+</div>
+
+{% stylesheet %}
+  .icon-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+
+  .icon-item__icon svg,
+  .icon-item__icon img {
+    width: var(--icon-size, 56px);
+    height: var(--icon-size, 56px);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Icon item",
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "options": [
+        { "value": "truck", "label": "Truck" },
+        { "value": "user-favorite", "label": "Customer" },
+        { "value": "sustainability", "label": "Sustainability" },
+        { "value": "tags", "label": "Tags" },
+        { "value": "custom", "label": "Custom (upload)" }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_icon",
+      "label": "Custom icon (used when 'Custom' is selected)"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Lorem Ipsum Dolor Sit Amet Consectetur"
+    }
+  ]
+}
+{% endschema %}

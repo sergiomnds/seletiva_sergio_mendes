@@ -1,0 +1,148 @@
+{%- liquid
+  assign product = block.settings.product
+  if product != blank
+    assign image_alt = product.featured_image.alt | default: product.title
+  endif
+-%}
+
+<li class="product-card" {{ block.shopify_attributes }}>
+  <a
+    {% if product != blank %}
+      href="{{ product.url }}"
+    {% endif %}
+    class="product-card__link"
+  >
+    <div class="product-card__media">
+      {%- if product != blank and product.featured_image -%}
+        {{
+          product.featured_image
+          | image_url: width: 600
+          | image_tag:
+            loading: 'lazy',
+            widths: '200, 300, 450, 600',
+            sizes: '(min-width: 750px) 275px, 45vw',
+            class: 'product-card__image',
+            alt: image_alt
+        }}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'product-card__image' }}
+      {%- endif -%}
+    </div>
+
+    <div class="product-card__info">
+      <p class="product-card__title">
+        {%- if product != blank -%}
+          {{- product.title | escape -}}
+        {%- else -%}
+          Product name
+        {%- endif -%}
+      </p>
+      {%- if section.settings.show_rating -%}
+        <div class="product-card__rating">
+          {%- render 'star-rating',
+            rating: block.settings.rating,
+            fill_color: section.settings.star_fill_color,
+            outline_color: section.settings.star_outline_color
+          -%}
+          {%- if block.settings.rating_text != blank -%}
+            <span class="product-card__rating-text">{{ block.settings.rating_text | escape }}</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </a>
+</li>
+
+{% stylesheet %}
+  .product-card {
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .product-card__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .product-card__media {
+    aspect-ratio: 275 / 300;
+    background-color: #f5f5fa;
+  }
+
+  .product-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .product-card__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(2px, 0.4vw, 6px);
+    box-sizing: border-box;
+    height: clamp(45px, 6.8px + 10.18vw, 85px);
+    padding: 0 clamp(10px, 1vw, 14px);
+  }
+
+  .product-card__title {
+    margin: 0;
+    font-size: clamp(14px, 1.25vw, 18px);
+    color: #252525;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .product-card__rating {
+    display: flex;
+    align-items: center;
+    gap: clamp(4px, 0.7vw, 10px);
+    min-width: 0;
+  }
+
+  .product-card__rating-text {
+    margin-top: 2px;
+    font-size: clamp(9px, 0.97vw, 14px);
+    color: #252525;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product Card",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "Rating"
+    },
+    {
+      "type": "range",
+      "id": "rating",
+      "label": "Filled stars",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "text",
+      "id": "rating_text",
+      "label": "Rating text",
+      "default": "(5.0 Of 800 Reviews)"
+    }
+  ]
+}
+{% endschema %}

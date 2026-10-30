@@ -1,0 +1,207 @@
+{%- capture submit_button -%}
+  <button type="submit">
+    {%- if block.settings.button_label != blank -%}
+      <span class="search-form__label">{{ block.settings.button_label | escape }}</span>
+    {%- endif -%}
+    {%- if block.settings.show_icon -%}
+      <span class="search-form__icon">{% render 'search-icon' %}</span>
+    {%- endif -%}
+  </button>
+{%- endcapture -%}
+
+<div
+  class="search-form-block"
+  style="
+    --search-border: {{ block.settings.border_color }};
+    --search-button-text: {{ block.settings.button_text_color }};
+    --search-button-bg: {{ block.settings.button_background_color }};
+    --search-input-text: {{ block.settings.input_text_color }};
+    --search-placeholder: {{ block.settings.placeholder_color }};
+  "
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.form_type == 'email' -%}
+    {%- form 'customer', class: 'search-form' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+      <input
+        type="email"
+        name="contact[email]"
+        placeholder="{{ block.settings.placeholder | escape }}"
+        aria-label="{{ block.settings.placeholder | escape }}"
+        autocomplete="email"
+        required
+      >
+      {{ submit_button }}
+
+      {%- capture form_message -%}
+        {%- if form.posted_successfully? -%}
+          <p class="search-form__message" role="status">{{ block.settings.success_message | escape }}</p>
+        {%- elsif form.errors -%}
+          <div class="search-form__message" role="alert">{{ form.errors | default_errors }}</div>
+        {%- endif -%}
+      {%- endcapture -%}
+    {%- endform -%}
+    {{ form_message }}
+  {%- else -%}
+    <form class="search-form" action="{{ routes.search_url }}" method="get">
+      <input
+        type="search"
+        name="q"
+        placeholder="{{ block.settings.placeholder | escape }}"
+        required
+      >
+      {{ submit_button }}
+    </form>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .search-form__message {
+    margin-top: 8px;
+    color: var(--search-input-text, #252525);
+    font-size: 14px;
+  }
+
+  .search-form__message ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-form {
+    display: flex;
+    height: 38px;
+    border: 2px solid var(--search-border, #252525);
+    border-radius: 100px;
+  }
+
+  .search-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 0 20px;
+    border: 0;
+    background: transparent;
+    color: var(--search-input-text, #252525);
+    font-size: 16px;
+    outline: none;
+  }
+
+  .search-form input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search-form input::placeholder {
+    color: var(--search-placeholder, #c2c3cc);
+  }
+
+  .search-form button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 0 32px;
+    white-space: nowrap;
+    margin: -1px;
+    border: 2px solid var(--search-border, #252525);
+    border-radius: 100px;
+    background: var(--search-button-bg, #ffffff);
+    color: var(--search-button-text, #252525);
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .search-form__icon {
+    display: inline-flex;
+  }
+
+  @media (max-width: 989px) {
+    .search-form input,
+    .search-form button {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .search-form input,
+    .search-form button {
+      font-size: 12px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Search form",
+  "settings": [
+    {
+      "type": "select",
+      "id": "form_type",
+      "label": "Form type",
+      "options": [
+        { "value": "search", "label": "Search" },
+        { "value": "email", "label": "Email signup" }
+      ],
+      "default": "search"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message (email signup)",
+      "default": "Thanks for subscribing!"
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Placeholder",
+      "default": "Search: Lorem Ipsum"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button text",
+      "default": "Search"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show search icon",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border (field and button)",
+      "default": "#252525"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "Typed text",
+      "default": "#252525"
+    },
+    {
+      "type": "color",
+      "id": "placeholder_color",
+      "label": "Placeholder",
+      "default": "#c2c3cc"
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text and icon",
+      "default": "#252525"
+    }
+  ]
+}
+{% endschema %}

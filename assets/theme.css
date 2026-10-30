@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  font-family: var(--font-body-family);
+  font-weight: var(--font-weight-regular);
+}
+
+.main-content:focus {
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hero-title {
+  font-size: clamp(28px, 3.125vw, 45px);
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: clamp(14px, 1.25vw, 18px);
+}
+
+h2 {
+  font-weight: var(--font-weight-bold);
+  font-size: clamp(24px, 2.5vw, 36px);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-bold,
+strong,
+b {
+  font-weight: var(--font-weight-bold);
+}
+
+.content-align--left {
+  --content-align: left;
+  --content-justify: flex-start;
+}
+
+.content-align--center {
+  --content-align: center;
+  --content-justify: center;
+}
+
+.content-align--right {
+  --content-align: right;
+  --content-justify: flex-end;
+}
+
+@media (max-width: 749px) {
+  [class*="content-align--"] {
+    --content-align: center;
+    --content-justify: center;
+  }
+}

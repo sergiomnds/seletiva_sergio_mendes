@@ -1,0 +1,39 @@
+<div
+  class="star-rating"
+  style="--star-fill: {{ fill_color }}; --star-outline: {{ outline_color }};"
+  role="img"
+  aria-label="{{ rating }} / 5"
+>
+  {%- for i in (1..5) -%}
+    <span class="star-rating__star{% if i <= rating %} star-rating__star--filled{% endif %}">
+      {%- render 'star-icon' -%}
+    </span>
+  {%- endfor -%}
+</div>
+
+{% stylesheet %}
+  .star-rating {
+    display: flex;
+    gap: 4px;
+  }
+
+  .star-rating__star {
+    display: inline-flex;
+    color: var(--star-fill, #ffb800);
+  }
+
+  .star-rating__star:not(.star-rating__star--filled) {
+    color: var(--star-outline, #ffb800);
+  }
+
+  .star-rating__star:not(.star-rating__star--filled) path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+  }
+
+  .star-rating__star svg {
+    width: var(--star-size, clamp(12px, 1.11vw, 16px));
+    height: var(--star-size, clamp(12px, 1.11vw, 16px));
+  }
+{% endstylesheet %}

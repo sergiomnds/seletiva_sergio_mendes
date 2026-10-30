@@ -1,0 +1,477 @@
+<div
+  class="footer"
+  style="--footer-bg: {{ section.settings.background_color }}; --title-color: {{ section.settings.title_color }}; --text-color: {{ section.settings.text_color }};"
+>
+  <div class="footer__inner">
+    <div class="footer__col footer__col--left">
+      <a href="#" class="footer__logo">
+        <img
+          src="{{ 'logo_white.png' | asset_url }}"
+          alt="{{ shop.name }}"
+          class="footer__logo-img"
+          width="135"
+          height="40"
+          loading="eager"
+        >
+      </a>
+      <p class="footer__title">{{ section.settings.title_search | escape }}</p>
+
+      {% content_for 'block', type: 'search-form', id: 'footer-search' %}
+
+      <p class="footer__title">{{ section.settings.title_collection | escape }}</p>
+
+      <ul class="footer__collection-list" role="list">
+        {%- render 'collection-card-list', selected: section.settings.collections, limit: section.settings.limit -%}
+      </ul>
+
+      {%- liquid
+        assign contact_phone = section.settings.phone
+        assign contact_email = section.settings.email
+        assign contact_address = section.settings.address
+      -%}
+      {%- if contact_phone != blank or contact_email != blank or contact_address != blank -%}
+        <p class="footer__title">{{ section.settings.title_contact | escape }}</p>
+        <div class="footer__contact-row footer__text">
+          {%- if contact_phone != blank -%}
+            {%- assign phone_href = contact_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' -%}
+            <a
+              class="footer__contact-unit"
+              href="tel:{{ phone_href | escape }}"
+              aria-label="Call {{ contact_phone | escape }}"
+            >
+              {% render 'phone-icon' %}
+              <p>{{ contact_phone | escape }}</p>
+            </a>
+          {%- endif -%}
+
+          {%- if contact_email != blank -%}
+            <a
+              class="footer__contact-unit"
+              href="mailto:{{ contact_email | escape }}"
+              aria-label="Email {{ contact_email | escape }}"
+            >
+              {% render 'email-icon' %}
+              <p>{{ contact_email | escape }}</p>
+            </a>
+          {%- endif -%}
+
+          {%- if contact_address != blank -%}
+            <div class="footer__contact-unit">
+              {% render 'pin-icon' %}
+              <p>{{ contact_address | escape }}</p>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="footer__col footer__col--right">
+      <div class="footer__menu-row">
+        <div class="footer__menu is-open" data-footer-menu>
+          <button
+            type="button"
+            class="footer__title footer__menu-toggle"
+            aria-expanded="true"
+            data-footer-menu-toggle
+          >
+            {{ section.settings.information_menu | escape }}
+            <span class="footer__menu-arrow">{% render 'simple-arrow-icon' %}</span>
+          </button>
+          <nav class="footer__menu-content">
+            <ul class="footer__text">
+              {%- for link in linklists.footer.links -%}
+                <li>
+                  <a
+                    href="{{ link.url }}"
+                  >
+                    {{- link.title -}}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+        </div>
+
+        <div class="footer__menu is-open" data-footer-menu>
+          <button
+            type="button"
+            class="footer__title footer__menu-toggle"
+            aria-expanded="true"
+            data-footer-menu-toggle
+          >
+            {{ section.settings.care_menu | escape }}
+            <span class="footer__menu-arrow">{% render 'simple-arrow-icon' %}</span>
+          </button>
+          <nav class="footer__menu-content">
+            <ul class="footer__text">
+              {%- for link in linklists['footer-menu-customer-care'].links -%}
+                <li>
+                  <a
+                    href="{{ link.url }}"
+                  >
+                    {{- link.title -}}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <ul class="list-payment" role="list">
+          {%- for type in shop.enabled_payment_types -%}
+            <li class="list-payment__item">
+              {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            </li>
+          {%- endfor -%}
+        </ul>
+        <p class="footer__text">{{ section.settings.copyright | escape }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .footer {
+    background-color: var(--footer-bg);
+    padding: 65px 135px;
+  }
+
+  .footer__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 620px) minmax(0, 1fr);
+    column-gap: 60px;
+  }
+
+  .footer__col--left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer__col--left > .footer__logo {
+    margin-bottom: 14px;
+  }
+
+  .footer__col--left > .footer__title ~ .footer__title {
+    margin-top: 14px;
+  }
+
+  .footer__col--left > p,
+  .footer__col--right p {
+    margin: 0;
+  }
+
+  .footer__col--right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    padding-top: 80px;
+  }
+
+  .footer__col--right ul:not(.list-payment) {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  .footer__bottom .list-payment {
+    margin: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 989px) {
+    .footer {
+      padding: 40px 20px;
+    }
+
+    .footer__inner {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 32px;
+    }
+
+    .footer__col--right {
+      padding-top: 0;
+    }
+
+    .footer__bottom {
+      align-items: flex-start;
+    }
+
+    .footer__collection-list,
+    .footer__contact-row {
+      flex-wrap: wrap;
+    }
+  }
+
+  .footer__title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--title-color);
+  }
+
+  .footer__text {
+    color: var(--text-color);
+  }
+
+  .footer__text a {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+  }
+
+  .footer__collection-list {
+    --gap: 12px;
+    --cols: 4;
+    --card-ratio: 165 / 247;
+    --card-radius: 8px;
+    --card-title-padding: 32px 4px 10px;
+    --card-title-size: 12px;
+    display: flex;
+    gap: var(--gap);
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer__collection-list .collection-carousel__item {
+    max-width: 120px;
+  }
+
+  .footer__contact-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .footer__menu-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(50px, 5vw, 100px);
+  }
+
+  .list-payment {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    gap: 10px;
+  }
+
+  .footer__contact-unit p {
+    margin: 0;
+  }
+
+  .footer__contact-unit {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .footer__menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .footer__menu-arrow {
+    display: none;
+    transition: transform 0.2s ease;
+  }
+
+  @media (max-width: 749px) {
+    .footer__title {
+      font-size: 14px;
+    }
+
+    .footer__text {
+      font-size: 12px;
+    }
+
+    .footer__col--left,
+    .footer__col--right,
+    .footer__bottom {
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer__col--left > * {
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .footer__col--left > .search-form-block,
+    .footer__col--left > .footer__collection-list {
+      width: 100%;
+    }
+
+    .footer .search-form button {
+      padding: 0 16px;
+    }
+
+    .footer__collection-list,
+    .footer__contact-row,
+    .footer__menu-row,
+    .list-payment {
+      justify-content: center;
+    }
+
+    .footer__contact-row {
+      flex-direction: column;
+    }
+
+    .footer__menu {
+      text-align: left;
+    }
+
+    .footer__menu-toggle {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .footer__menu-arrow {
+      display: inline-flex;
+    }
+
+    .footer__menu.is-open .footer__menu-arrow {
+      transform: rotate(90deg);
+    }
+
+    .footer__menu:not(.is-open) .footer__menu-content {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    document.addEventListener('click', function (e) {
+      var toggle = e.target.closest('[data-footer-menu-toggle]');
+      if (!toggle) return;
+      var menu = toggle.closest('[data-footer-menu]');
+      var open = !menu.classList.contains('is-open');
+      menu.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#17171A"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title's Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#E8E8E8"
+    },
+    {
+      "type": "text",
+      "id": "title_search",
+      "label": "Title Search",
+      "default": "Enter Your Email To Receive 15% Coupon Immediately"
+    },
+    {
+      "type": "text",
+      "id": "information_menu",
+      "label": "First Menu Title",
+      "default": "Information"
+    },
+    {
+      "type": "text",
+      "id": "care_menu",
+      "label": "Second Menu Title",
+      "default": "Customer Care"
+    },
+    {
+      "type": "text",
+      "id": "copyright",
+      "label": "Copyright",
+      "default": "Copyright © 2023 Clench Fitness. All Right Reserved."
+    },
+    {
+      "type": "text",
+      "id": "title_contact",
+      "label": "Title Contact",
+      "default": "Get In Contact"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email",
+      "default": "info@clenchfitness.com"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone",
+      "default": "+1 (715) 600-1564"
+    },
+    {
+      "type": "text",
+      "id": "address",
+      "label": "Address",
+      "default": "New Richmond, WI 54017"
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "text",
+      "id": "title_collection",
+      "label": "Title Collections",
+      "default": "Popular Collections"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "Collections",
+      "limit": 4
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Max Collections",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    }
+  ]
+}
+{% endschema %}

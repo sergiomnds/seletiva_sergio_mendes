@@ -1,0 +1,8 @@
+{%- liquid
+  if selected == blank
+    assign selected = collections
+  endif
+-%}
+{%- for collection in selected limit: limit -%}
+  {% render 'collection-carousel-card', collection: collection %}
+{%- endfor -%}

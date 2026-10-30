@@ -1,0 +1,167 @@
+{%- liquid
+  assign author = review.author.value
+  assign country = review.country.value
+  assign rating = review.rating_0_5.value | default: 0
+  assign text = review.review.value
+  assign product = review.product.value
+  assign photo = review.author_photo.value
+  assign star_fill = fill_color | default: '#FFB800'
+  assign star_outline = outline_color | default: '#FFB800'
+  assign show_country = show_country | default: true, allow_false: true
+  assign show_rating = show_rating | default: true, allow_false: true
+  assign show_product = show_product | default: true, allow_false: true
+-%}
+
+<li class="review-card"{% if page %} data-page="{{ page }}"{% if page > 1 %} hidden{% endif %}{% endif %}>
+  <div class="review-card__media">
+    {%- if photo != blank -%}
+      {{
+        photo
+        | image_url: width: 600
+        | image_tag:
+          loading: 'lazy',
+          widths: '300, 450, 600',
+          sizes: '(min-width: 990px) calc((100vw - 575px) / 4), calc((100vw - 60px) / 2)',
+          class: 'review-card__image',
+          alt: author
+      }}
+    {%- else -%}
+      {{ 'image' | placeholder_svg_tag: 'review-card__image' }}
+    {%- endif -%}
+  </div>
+
+  <div class="review-card__body">
+    {%- if author != blank -%}
+      <p class="review-card__author">{{ author | escape }}</p>
+    {%- endif -%}
+    {%- if show_country and country != blank -%}
+      <p class="review-card__country">{{ country | escape }}</p>
+    {%- endif -%}
+
+    {%- if show_rating -%}
+      <div class="review-card__rating">
+        {%- render 'star-rating', rating: rating, fill_color: star_fill, outline_color: star_outline -%}
+      </div>
+    {%- endif -%}
+
+    {%- if text != blank -%}
+      <p class="review-card__text">{{ text | escape | newline_to_br }}</p>
+    {%- endif -%}
+  </div>
+
+  {%- if show_product and product != blank -%}
+    <a href="{{ product.url }}" class="review-card__product">
+      <span class="review-card__product-media">
+        {%- if product.featured_image -%}
+          {{
+            product.featured_image
+            | image_url: width: 96
+            | image_tag: loading: 'lazy', class: 'review-card__product-image', alt: product.title
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'review-card__product-image' }}
+        {%- endif -%}
+      </span>
+      <span class="review-card__product-title">{{ product.title | escape }}</span>
+    </a>
+  {%- endif -%}
+</li>
+
+{% stylesheet %}
+  .review-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #e5e5e5;
+    border-color: color-mix(in srgb, currentColor 15%, transparent);
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--review-card-bg, #ffffff);
+    color: var(--review-card-color, #252525);
+  }
+
+  .review-card[hidden] {
+    display: none;
+  }
+
+  .review-card__media {
+    aspect-ratio: 290 / 410;
+    background-color: #f5f5fa;
+  }
+
+  .review-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .review-card__body {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(16px, 1.67vw, 24px) clamp(12px, 1.11vw, 16px) clamp(12px, 1.11vw, 16px);
+    align-items: flex-start;
+  }
+
+  .review-card__author {
+    margin: 0;
+    font-size: clamp(12px, 1.94vw, 24px);
+    line-height: 1.2;
+    font-weight: bold;
+  }
+
+  .review-card__country {
+    margin: 0;
+    font-size: clamp(10px, 1.25vw, 20px);
+  }
+
+  .review-card__rating,
+  .review-card__text {
+    margin-top: clamp(8px, 1.11vw, 18px);
+  }
+
+  .review-card__text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    max-height: 80px;
+    overflow: hidden;
+    margin-bottom: 0;
+    font-size: clamp(12px, 1.25vw, 16px);
+    line-height: 20px;
+    text-align: left;
+  }
+
+  .review-card__product {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 2.22vw, 32px);
+    margin: auto clamp(12px, 1.11vw, 16px) 0;
+    padding: clamp(10px, 1.11vw, 16px) 0;
+    border-top: 1px solid #e5e5e5;
+    border-top-color: color-mix(in srgb, currentColor 15%, transparent);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .review-card__product-media {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+  }
+
+  .review-card__product-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .review-card__product-title {
+    font-size: clamp(14px, 1.11vw, 16px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+{% endstylesheet %}

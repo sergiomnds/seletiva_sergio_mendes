@@ -1,0 +1,194 @@
+<section class="collection-carousel" id="collection-carousel-{{ section.id }}">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="collection-carousel__heading" style="color: {{ section.settings.text_color}};">
+      {{ section.settings.heading | escape }}
+    </h2>
+  {%- endif -%}
+
+  <div class="collection-carousel__wrapper">
+    <button
+      type="button"
+      class="collection-carousel__arrow collection-carousel__arrow--prev"
+      aria-label="Previous collections"
+    >
+      {% render 'right-arrow' %}
+    </button>
+
+    <ul class="collection-carousel__track" role="list">
+      {%- render 'collection-card-list', selected: section.settings.collections, limit: section.settings.limit -%}
+    </ul>
+
+    <button
+      type="button"
+      class="collection-carousel__arrow collection-carousel__arrow--next"
+      aria-label="Next collections"
+    >
+      {% render 'right-arrow' %}
+    </button>
+  </div>
+</section>
+
+{% stylesheet %}
+  .collection-carousel {
+    --gap: 24px;
+    --cols: 1.4;
+    --inline-margin: clamp(16px, 9vw, 130px);
+    --arrow-offset: calc(var(--inline-margin) + 20px);
+    padding: 24px 0;
+  }
+
+  .collection-carousel__heading {
+    text-align: center;
+    margin: 0 0 24px;
+  }
+
+  .collection-carousel__wrapper {
+    position: relative;
+  }
+
+  .collection-carousel__track {
+    display: flex;
+    gap: var(--gap);
+    margin: 0 var(--inline-margin);
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .collection-carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .collection-carousel__track {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .collection-carousel {
+      --cols: 2.5;
+    }
+  }
+
+  @media (min-width: 990px) {
+    .collection-carousel {
+      --cols: 4.5;
+    }
+  }
+
+  .collection-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.25);
+    -webkit-backdrop-filter: blur(6.57px);
+    backdrop-filter: blur(6.57px);
+    color: #ffffff;
+    cursor: pointer;
+  }
+
+  .collection-carousel__arrow--prev {
+    left: var(--arrow-offset);
+  }
+
+  .collection-carousel__arrow--prev svg {
+    transform: rotate(180deg);
+  }
+
+  .collection-carousel__arrow--next {
+    right: var(--arrow-offset);
+  }
+
+  .collection-carousel__arrow[disabled] {
+    opacity: 0.3;
+    cursor: default;
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const root = document.getElementById('collection-carousel-{{ section.id }}');
+    if (!root) return;
+
+    const track = root.querySelector('.collection-carousel__track');
+    const prev = root.querySelector('.collection-carousel__arrow--prev');
+    const next = root.querySelector('.collection-carousel__arrow--next');
+
+    const step = () => {
+      const item = track.querySelector('.collection-carousel__item');
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return item ? item.offsetWidth + gap : track.clientWidth;
+    };
+
+    const update = () => {
+      prev.disabled = track.scrollLeft <= 1;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
+    };
+
+    prev.addEventListener('click', () => track.scrollBy({ left: -step() }));
+    next.addEventListener('click', () => track.scrollBy({ left: step() }));
+    track.addEventListener('scroll', update, { passive: true });
+    new ResizeObserver(update).observe(track);
+    update();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Shop by Collection",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Title"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Text",
+      "default": "Shop by Collection"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#252525"
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "Collections",
+      "info": "If no collections are selected it shows all.",
+      "limit": 12
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Número máximo de coleções",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by Collection"
+    }
+  ]
+}
+{% endschema %}

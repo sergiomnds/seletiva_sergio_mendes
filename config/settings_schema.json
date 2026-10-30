@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Tipografia",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "body_font",
+        "label": "Fonte do body",
+        "default": "dm_sans_n4"
+      }
+    ]
+  }
+]

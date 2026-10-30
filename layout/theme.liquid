@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {{ content_for_header }}
+
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+    {% liquid
+      assign font_regular = settings.body_font | font_modify: 'weight', '400' | default: settings.body_font
+      assign font_medium = settings.body_font | font_modify: 'weight', '500' | default: settings.body_font
+      assign font_bold = settings.body_font | font_modify: 'weight', '700' | default: settings.body_font
+    %}
+
+    {% style %}
+      {{ font_regular | font_face: font_display: 'swap' }}
+      {{ font_medium | font_face: font_display: 'swap' }}
+      {{ font_bold | font_face: font_display: 'swap' }}
+
+      :root {
+        --font-body-family: {{ settings.body_font.family }}, {{ settings.body_font.fallback_families }};
+        --font-weight-regular: {{ font_regular.weight }};
+        --font-weight-medium: {{ font_medium.weight }};
+        --font-weight-bold: {{ font_bold.weight }};
+      }
+    {% endstyle %}
+  </head>
+  <body>
+    {% sections 'header-group' %}
+    <main class="main-content" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+    {% sections 'footer-group' %}
+  </body>
+</html>

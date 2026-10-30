@@ -1,0 +1,236 @@
+<div style="--hero-text-color: {{ section.settings.text_color }};">
+  {%- render 'hero-media',
+    image: section.settings.image,
+    image_mobile: section.settings.image_mobile,
+    fallback: 'banner-hero.png',
+    fallback_mobile: 'banner-hero-mobile.png',
+    fallback_width: 1440,
+    fallback_height: 506
+  -%}
+
+  <div class="hero__content content-align--{{ section.settings.content_alignment }}">
+    <div class="hero__eyebrow-row">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="hero__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_rating -%}
+        {%- render 'star-rating',
+          rating: section.settings.rating_value,
+          fill_color: section.settings.star_fill_color,
+          outline_color: section.settings.star_outline_color
+        -%}
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.heading != blank -%}
+      <h1 class="hero__heading hero-title">{{ section.settings.heading | escape }}</h1>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="hero-subtitle">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+
+    <div class="hero__button">
+      {%- render 'hero-button',
+        label: section.settings.primary_button_label,
+        link: section.settings.primary_button_link,
+        bg: section.settings.primary_button_bg,
+        text_color: section.settings.primary_button_text
+      -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .section-hero {
+    padding: 0;
+    width: 100%;
+    position: relative;
+  }
+
+  .hero__eyebrow-row {
+    display: flex;
+    align-items: center;
+    justify-content: var(--content-justify);
+    flex-wrap: wrap;
+    gap: 10px;
+    --star-size: 10px;
+  }
+
+  .hero__eyebrow {
+    font-size: clamp(14px, 1.11vw, 16px);
+    letter-spacing: 2px;
+  }
+
+  .hero__content {
+    position: absolute;
+    top: 50%;
+    left: clamp(20px, 9vw, 130px);
+    transform: translateY(-50%);
+    max-width: 50%;
+    color: var(--hero-text-color);
+    text-align: var(--content-align);
+  }
+
+  .hero__heading {
+    margin: clamp(4px, 0.55vw, 8px) 0;
+    font-weight: bold;
+  }
+
+  .hero__button {
+    display: flex;
+    justify-content: var(--content-justify);
+    margin-top: clamp(12px, 1.67vw, 24px);
+  }
+
+  @media (min-width: 750px) {
+    .hero__content.content-align--center {
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .hero__content.content-align--right {
+      left: auto;
+      right: clamp(20px, 9vw, 130px);
+    }
+  }
+
+  @media (max-width: 749px) {
+    .hero__content {
+      top: 24px;
+      left: 0;
+      right: 0;
+      transform: none;
+      max-width: none;
+      padding: 0 20px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "section",
+  "class": "section-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background Image (desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Background Image (mobile)"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment (desktop)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Text above title",
+      "default": "With 1600+ 5-star reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating (stars)",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Title",
+      "default": "Lorem ipsum dolor sit amet consectetur"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Lorem ipsum dolor sit amet consectetur. Elit elementum rhoncus"
+    },
+    {
+      "type": "header",
+      "content": "Rating"
+    },
+    {
+      "type": "range",
+      "id": "rating_value",
+      "label": "Filled stars",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "star_fill_color",
+      "label": "Star fill color",
+      "default": "#FFB800"
+    },
+    {
+      "type": "color",
+      "id": "star_outline_color",
+      "label": "Star outline color",
+      "default": "#FFB800"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_label",
+      "label": "Button Label",
+      "default": "View More"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "label": "Link"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Background Color",
+      "default": "#00AC4F"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero",
+      "category": "General"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,134 @@
+<div
+  class="announcement-bar"
+  style="--announcement-bg: {{ section.settings.background_color }}; --announcement-color: {{ section.settings.text_color }};"
+>
+  {%- if section.settings.email != blank -%}
+    <a
+      class="announcement-bar__contact"
+      href="mailto:{{ section.settings.email | escape }}"
+      aria-label="Email {{ section.settings.email | escape }}"
+    >
+      {% render 'email-icon' %}
+      <p>{{ section.settings.email | escape }}</p>
+    </a>
+  {%- else -%}
+    <span></span>
+  {%- endif -%}
+
+  {%- if section.settings.text != blank -%}
+    <p class="announcement-bar__text">{{ section.settings.text | escape }}</p>
+  {%- else -%}
+    <span></span>
+  {%- endif -%}
+
+  {%- if section.settings.phone != blank -%}
+    {%- assign phone_href = section.settings.phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' -%}
+    <a
+      class="announcement-bar__contact announcement-bar__contact--end"
+      href="tel:{{ phone_href | escape }}"
+      aria-label="Call {{ section.settings.phone | escape }}"
+    >
+      {% render 'phone-icon' %}
+      <p>{{ section.settings.phone | escape }}</p>
+    </a>
+  {%- else -%}
+    <span></span>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .announcement-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    background-color: var(--announcement-bg);
+    color: var(--announcement-color);
+    height: 50px;
+    padding: 0 135px;
+    box-sizing: border-box;
+  }
+
+  .announcement-bar__text,
+  .announcement-bar__contact {
+    margin: 0;
+    font-size: clamp(12px, 1.4vw, 18px);
+  }
+
+  .announcement-bar__text {
+    text-align: center;
+  }
+
+  .announcement-bar__contact {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .announcement-bar__contact--end {
+    justify-self: end;
+  }
+
+  .announcement-bar__contact svg {
+    flex-shrink: 0;
+  }
+
+  .announcement-bar__contact p {
+    margin: 0;
+  }
+
+  @media (max-width: 989px) {
+    .announcement-bar {
+      padding: 0 24px;
+    }
+
+    .announcement-bar__contact p {
+      display: none;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .announcement-bar {
+      padding: 0 16px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Announcement Bar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Announcement",
+      "default": "WE PAY SHIPPING ON ORDERS OVER $X"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#17171A"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email",
+      "default": "info@brand.com"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone",
+      "default": "+1 (111) 222-3333"
+    }
+  ]
+}
+{% endschema %}
